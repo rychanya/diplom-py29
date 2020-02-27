@@ -42,13 +42,14 @@ class VKAPI:
         if 'error' in data:
             error_code = data['error'].get('error_code')
             error_msg = data['error'].get('error_msg')
-            if error_code == 7:
+            if error_code == 7 or error_code == 15:
                 raise vkexception.VKPermissionDenied(error_msg)
             elif error_code == 6:
                 raise vkexception.VKTooManyRequests(error_msg)
             elif error_code == 18:
                 raise vkexception.VKUserWasDeletedOrBanned(error_msg)
             else:
+                print(data)
                 raise vkexception.VKOtherException(error_msg)
         elif 'response' in data:
             return
@@ -104,9 +105,9 @@ class VKAPI:
 
 
 vk = VKAPI(TOKEN)
-#user_id = vk.resolve_screen_name('rychanya')
-user_id = 42928182
+user_id = vk.resolve_screen_name('rychanya')
 user_groups = vk.groups_get(user_id)
+print(user_groups)
 for friend in vk.friends_get(user_id):
     friend_groups = vk.groups_get(friend)
     user_groups = user_groups - friend_groups

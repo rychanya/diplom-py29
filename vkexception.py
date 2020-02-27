@@ -13,5 +13,4 @@ class VKUserWasDeletedOrBanned(VKBaseException):
 class VKOtherException(VKBaseException):
     pass
 
-
 #"{7: 'Permission to perform this action is denied', 6: 'Too many requests per second', 18: 'User was deleted or banned'}"
