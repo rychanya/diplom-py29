@@ -1,6 +1,7 @@
 import requests
 from time import time, sleep
 import vkexception
+import json
 
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
 
@@ -68,6 +69,7 @@ class VKAPI:
             pass
 
     def groups_get(self, user_id):
+        # 30 260
         json = self._vk_method('groups.get', user_id=user_id)
         if not json:
             return set()
@@ -77,6 +79,7 @@ class VKAPI:
             return set()
 
     def friends_get(self, user_id):
+        #30
         json = self._vk_method('friends.get', user_id=user_id)
         if not json:
             return []
@@ -102,18 +105,24 @@ class VKAPI:
                 }
         return [parse_group(group) for group in json['response']]
 
+    def execute(self):
+        #12 13
+        pass
+
 
 
 vk = VKAPI(TOKEN)
 user_id = vk.resolve_screen_name('rychanya')
 user_groups = vk.groups_get(user_id)
-print(user_groups)
 for friend in vk.friends_get(user_id):
     friend_groups = vk.groups_get(friend)
     user_groups = user_groups - friend_groups
 if user_groups:
-    g = vk.groups_getById(', '.join(map(str, user_groups)))
-    print(g)
+    json_data = vk.groups_getById(', '.join(map(str, user_groups)))
+    if json_data:
+        with open('groups.json', mode='w', encoding='utf8') as file:
+            json.dump(json_data, file, ensure_ascii=False, indent=4)
+    
     
 
 
