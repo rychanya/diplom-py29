@@ -3,6 +3,7 @@ from time import time, sleep
 import vkexception
 import json
 
+
 TOKEN = '73eaea320bdc0d3299faa475c196cfea1c4df9da4c6d291633f9fe8f83c08c4de2a3abf89fbc3ed8a44e1'
 
 
@@ -56,7 +57,6 @@ class VKAPI:
             return
         else:
             raise vkexception.VKOtherException(error_msg)
-            
 
     def resolve_screen_name(self, screen_name: str):
         json = self._vk_method('resolveScreenName', screen_name=screen_name)
@@ -79,7 +79,7 @@ class VKAPI:
             return set()
 
     def friends_get(self, user_id):
-        #30
+        # 30
         json = self._vk_method('friends.get', user_id=user_id)
         if not json:
             return []
@@ -106,9 +106,8 @@ class VKAPI:
         return [parse_group(group) for group in json['response']]
 
     def execute(self):
-        #12 13
+        # 12 13
         pass
-
 
 
 vk = VKAPI(TOKEN)
@@ -122,7 +121,3 @@ if user_groups:
     if json_data:
         with open('groups.json', mode='w', encoding='utf8') as file:
             json.dump(json_data, file, ensure_ascii=False, indent=4)
-    
-    
-
-
