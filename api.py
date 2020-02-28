@@ -20,9 +20,9 @@ class VKAPI:
         )
         if (time() - self.last_call_api) < self.method_time_out:
             sleep(self.method_time_out)
+        self.last_call_api = time()
         response = requests.get(URL, kwargs, timeout=10)
         response.raise_for_status()
-        self.last_call_api = time()
         json = response.json()
         return json
 
@@ -35,12 +35,11 @@ class VKAPI:
         elif 'response' in data:
             return
         else:
-            raise vkexception.VKOtherException(error_code, error_msg)
+            raise vkexception.VKOtherException(data)
 
     def resolve_screen_name(self, screen_name: str):
         json = self._vk_method('resolveScreenName', screen_name=screen_name)
-        if not json:
-            return
+        self._raise(json)
         try:
             if json['response'] and json['response']['type'] == 'user':
                 return json['response']['object_id']
@@ -58,22 +57,22 @@ class VKAPI:
     def groups_get(self, user_id):
         # 30 260
         json = self._vk_method('groups.get', user_id=user_id)
-        if not json:
-            return set()
+        self._raise(json)
         try:
             return set(json['response']['items'])
         except KeyError:
-            return set()
+            pass
+        return set()
 
     def friends_get(self, user_id):
         # 30
         json = self._vk_method('friends.get', user_id=user_id)
-        if not json:
-            return []
+        self._raise(json)
         try:
             return json['response']['items']
         except KeyError:
-            return []
+            pass
+        return []
 
     def groups_getById(self, groups_id):
         params = {
@@ -81,16 +80,21 @@ class VKAPI:
             'fields': ['name', 'id', 'members_count']
         }
         json = self._vk_method('groups.getById', **params)
-        if not json:
-            return
+        self._raise(json)
+        try:
+            return [self.parse_group(group) for group in json['response']]
+        except KeyError:
+            pass
+        return []
 
-        def parse_group(json_group):
-            return {
-                'name': json_group['name'],
-                'gid': json_group['id'],
-                'members_count': json_group['members_count']
-                }
-        return [parse_group(group) for group in json['response']]
+
+    @staticmethod
+    def parse_group(json_group):
+        return {
+            'name': json_group['name'],
+            'gid': json_group['id'],
+            'members_count': json_group['members_count']
+            }
 
     def execute(self):
         # 12 13
