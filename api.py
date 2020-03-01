@@ -26,6 +26,7 @@ class VKAPI:
         try:
             response.raise_for_status()
         except requests.exceptions.ReadTimeout:
+            sleep(self.method_time_out)
             self._vk_method(method, **kwargs)
         json = response.json()
         try:
