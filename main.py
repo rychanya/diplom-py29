@@ -29,18 +29,21 @@ class User:
         else:
             print('User don`t have any friends.')
 
+
 if __name__ == '__main__':
     vk = VKAPI(TOKEN)
     name_or_id = 'rychanya'
     user = User(name_or_id)
     user.get_groups()
     user.get_friends()
-    for friend in user.friends:
-        friend_groups = vk.groups_get(friend)
-        user_groups = user_groups - friend_groups
-    if user_groups:
-        json_data = vk.groups_getById(', '.join(map(str, user_groups)))
+    friends_count = len(user.friends)
+    for number, friend in enumerate(user.friends, start=1):
+        print(f'Parse {number} of {friends_count}')
+        user.groups = user.groups - vk.groups_get(friend)
+    if user.groups:
+        print('Try get groups info')
+        json_data = vk.groups_getById(', '.join(map(str, user.groups)))
         if json_data:
             with open('groups.json', mode='w', encoding='utf8') as file:
                 json.dump(json_data, file, ensure_ascii=False, indent=4)
-                
+                print('Data saved to file')
